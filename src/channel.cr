@@ -109,7 +109,15 @@ class SSH2::Channel < IO
     return 0 if eof?
     read(0, slice)
   end
-
+  def read(slice : Slice(UInt32))
+    return 0 if eof?
+    read(0, slice)
+  end
+    def read(slice : Slice(UInt64))
+    return 0 if eof?
+    read(0, slice)
+  end
+  
   def write(slice : Slice(UInt8))
     write(0, slice)
   end
