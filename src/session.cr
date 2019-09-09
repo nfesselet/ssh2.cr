@@ -315,7 +315,7 @@ class SSH2::Session
     if LibC.stat(path, out stat) != 0
       raise Errno.new("Unable to get stat for '#{path}'")
     end
-    scp_send(path, (stat.st_mode & 0x3ff).to_i32, stat.st_size.to_u64,stat.st_mtimespec.tv_sec, stat.st_atimespec.tv_sec) do |ch|
+    scp_send(path, (stat.st_mode & 0x3ff).to_i32, stat.st_size.to_u64) do |ch|
       File.open(localpath, "r") do |f|
         IO.copy(f, ch)
       end
