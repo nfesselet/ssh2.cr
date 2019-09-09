@@ -341,7 +341,7 @@ class SSH2::Session
       file_size = stat.st_size
       read_bytes = 0
       File.open(local_path, "w") do |f|
-        buf = uninitialized UInt8[1024]
+      buf = StaticArray(Int8, 1024).new(0) # => 42#uninitialized UInt8[1024]
         while read_bytes < file_size
           bytes_to_read = min.call(buf.size, file_size - read_bytes)
           len = ch.read(buf.to_slice, bytes_to_read).to_i32
