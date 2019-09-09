@@ -312,7 +312,7 @@ mtime,atime)  #LibC::TimeT.new(mtime), LibC::TimeT.new(atime))
   end
   # Send a file from a local filesystem to the remote host via SCP.
   def scp_send_file(path,localpath)
-    if LibC.stat(path, out stat) != 0
+    if LibC.stat(localpath, out stat) != 0
       raise Errno.new("Unable to get stat for '#{path}'")
     end
     scp_send(path, (stat.st_mode & 0x3ff).to_i32, stat.st_size.to_u64) do |ch|
