@@ -346,7 +346,7 @@ class SSH2::Session
 #bytes_to_read = min.call(buf.size, file_size - read_bytes).as(Int64)
 #buf2 = Slice(Int8).new( bytes_to_read,0)
           len = ch.read(buf.to_slice).to_i32
-          f.write(buf.to_slice, len)
+          f.write buf.to_slice, len
           break if len <= 0
           read_bytes += len
         end
