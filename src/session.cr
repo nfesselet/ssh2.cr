@@ -289,7 +289,7 @@ mtime,atime)  #LibC::TimeT.new(mtime), LibC::TimeT.new(atime))
 
   # Send a file to the remote host via SCP.
   # A new channel is passed to the block and closed afterwards.
-  def scp_send(path, mode, size, mtime = Time.now.to_utc, atime = Time.now.to_utc)
+  def scp_send(path, mode, size, mtime = Time.now.to_unix, atime = Time.now.to_unix)
     channel = scp_send(path, mode, size, mtime, atime)
     begin
       yield channel
