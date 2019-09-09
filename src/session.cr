@@ -282,14 +282,14 @@ class SSH2::Session
   # Send a file to the remote host via SCP.
   def scp_send(path, mode, size, mtime, atime)
     handle = LibSSH2.scp_send(self, path, mode.to_i32, size.to_u64,
-                              LibC::TimeT.new(mtime), LibC::TimeT.new(atime))
+mtime,atime)  #LibC::TimeT.new(mtime), LibC::TimeT.new(atime))
     check_error(LibSSH2.session_last_errno(self))
     Channel.new self, handle
   end
 
   # Send a file to the remote host via SCP.
   # A new channel is passed to the block and closed afterwards.
-  def scp_send(path, mode, size, mtime = Time.now.to_utc, atime = Time.now.to_utc)
+  def scp_send(path, mode, size, mtime = Time.now, atime = Time.now)
     channel = scp_send(path, mode, size, mtime, atime)
     begin
       yield channel
