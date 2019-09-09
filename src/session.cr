@@ -289,7 +289,7 @@ class SSH2::Session
 
   # Send a file to the remote host via SCP.
   # A new channel is passed to the block and closed afterwards.
-  def scp_send(path, mode, size, mtime = Time.now.epoch, atime = Time.now.epoch)
+  def scp_send(path, mode, size, mtime = Time.now.local, atime = Time.now.local)
     channel = scp_send(path, mode, size, mtime, atime)
     begin
       yield channel
