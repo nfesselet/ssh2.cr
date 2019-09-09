@@ -331,7 +331,7 @@ class SSH2::Session
 
   # Download a file from the remote host via SCP to the local filesystem.
   def scp_recv_file(path, local_path = path)
-    min = -> (x : Int32|Int64, y : Int32|Int64) { x < y ? x : y}
+    min = -> (x : Int32, y : Int32) { x < y ? x : y}
 
     # libssh2 scp_recv method has a bug where its channel's read method doesn't
     # return 0 value to indicate the end of file(EOF). The only way to find EOF
