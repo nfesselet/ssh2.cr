@@ -343,7 +343,7 @@ class SSH2::Session
       File.open(local_path, "w") do |f|
         buf = uninitialized UInt8[1024]
         while read_bytes < file_size
-          bytes_to_read = min.call(buf.length, file_size - read_bytes)
+          bytes_to_read = min.call(buf.size, file_size - read_bytes)
           len = ch.read(buf.to_slice, bytes_to_read).to_i32
           f.write(buf.to_slice, len)
           break if len <= 0
