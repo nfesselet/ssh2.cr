@@ -1,9 +1,8 @@
 require "./session"
 
 class SSH2::Channel < IO
-
-  PROCESS_SHELL = "shell"
-  PROCESS_EXEC = "exec"
+  PROCESS_SHELL     = "shell"
+  PROCESS_EXEC      = "exec"
   PROCESS_SUBSYSTEM = "subsystem"
 
   getter session : Session
@@ -63,7 +62,7 @@ class SSH2::Channel < IO
 
   def process_startup(request, message)
     ret = LibSSH2.channel_process_startup(self, request, request.bytesize.to_u32,
-                                          message, message ? message.bytesize.to_u32 : 0_u32)
+      message, message ? message.bytesize.to_u32 : 0_u32)
     check_error(ret)
   end
 
@@ -71,7 +70,7 @@ class SSH2::Channel < IO
   # leading "SIG"), and the second field populated with the error message.
   def exit_signal
     ret = LibSSH2.channel_get_exit_signal(self, out exitsignal, out exitsignal_len,
-                                          out errmsg, out errmsg_len, nil, nil)
+      out errmsg, out errmsg_len, nil, nil)
     check_error(ret)
     exitsignal_str = String.new(exitsignal, exitsignal_len) if exitsignal
     errmsg_str = String.new(errmsg, errmsg_len) if errmsg
@@ -109,15 +108,17 @@ class SSH2::Channel < IO
     return 0 if eof?
     read(0, slice)
   end
+
   def read(slice : Slice(UInt32))
     return 0 if eof?
     read(0, slice)
   end
-    def read(slice : Slice(UInt64))
+
+  def read(slice : Slice(UInt64))
     return 0 if eof?
     read(0, slice)
   end
-  
+
   def write(slice : Slice(UInt8))
     write(0, slice)
   end
@@ -175,8 +176,8 @@ class SSH2::Channel < IO
   def request_pty(term, modes = nil, width = LibSSH2::TERM_WIDTH, height = LibSSH2::TERM_HEIGHT,
                   width_px = LibSSH2::TERM_WIDTH_PX, height_px = LibSSH2::TERM_HEIGHT_PX)
     ret = LibSSH2.channel_request_pty(self, term, term.bytesize.to_u32,
-                                      modes, modes ? modes.bytesize.to_u32 : 0_u32,
-                                      width, height, width_px, height_px)
+      modes, modes ? modes.bytesize.to_u32 : 0_u32,
+      width, height, width_px, height_px)
     check_error(ret)
   end
 
@@ -227,7 +228,6 @@ class SSH2::Channel < IO
   end
 
   class StreamIO < IO
-
     getter channel : Channel
     getter stream_id : Int32
 

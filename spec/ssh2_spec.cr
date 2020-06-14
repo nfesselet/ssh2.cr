@@ -3,7 +3,7 @@ require "spec"
 
 def connect_ssh
   SSH2::Session.open("localhost", 2222) do |session|
-    session.login_with_pubkey("root", "./spec/keys/id_rsa")
+    session.login_with_pubkey("root", "./spec/keys/id_rsa", "./spec/keys/id_rsa.pub")
     session.authenticated?.should be_true
     yield session
   end
@@ -22,7 +22,7 @@ describe SSH2 do
   end
 
   it "should be able to scp transfer file" do
-    fn = "#{Time.now.epoch}.txt"
+    fn = "#{Time.utc.to_unix}.txt"
     connect_ssh do |session|
       session.scp_send(fn, 0o0644, 12) do |ch|
         ch.puts "hello world"
@@ -59,7 +59,7 @@ describe SSH2::KnownHosts do
       known_hosts.size.should eq(2)
       known_hosts.map(&.name).includes?("localhost").should be_true
       known_hosts.write_file("known_hosts")
-      known_hosts.delete_if {|h| h.name == "localhost"}
+      known_hosts.delete_if { |h| h.name == "localhost" }
       known_hosts.size.should eq(1)
     end
 
@@ -101,7 +101,7 @@ describe SSH2::SFTP do
   it "should be able to upload a file" do
     connect_ssh do |ssh|
       ssh.sftp_session do |sftp|
-        fn = "#{Time.now.epoch}_upload.txt"
+        fn = "#{Time.utc.to_unix}_upload.txt"
         file = sftp.open(fn, "wc", 0o644)
         file.puts "hello world!"
         attrs = file.fstat

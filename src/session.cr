@@ -35,23 +35,23 @@ class SSH2::Session
   # Login with username and password
   def login(username, password)
     ret = LibSSH2.userauth_password(self, username, username.bytesize.to_u32,
-                                    password, password.bytesize.to_u32, nil)
+      password, password.bytesize.to_u32, nil)
     check_error(ret)
   end
 
   # Login with username using pub/priv key values
   def login_with_data(username, privkey, pubkey, passphrase = nil)
     ret = LibSSH2.userauth_publickey_frommemory(self, username, username.bytesize.to_u32,
-                                                pubkey, LibC::SizeT.new(pubkey.bytesize),
-                                                privkey, LibC::SizeT.new(privkey.bytesize),
-                                                passphrase)
+      pubkey, LibC::SizeT.new(pubkey.bytesize),
+      privkey, LibC::SizeT.new(privkey.bytesize),
+      passphrase)
     check_error(ret)
   end
 
   # Login with username using pub/priv key files
   def login_with_pubkey(username, privkey, pubkey = nil, passphrase = nil)
     ret = LibSSH2.userauth_publickey_fromfile(self, username, username.bytesize.to_u32,
-                                              pubkey, privkey, passphrase)
+      pubkey, privkey, passphrase)
     check_error(ret)
   end
 
@@ -242,8 +242,8 @@ class SSH2::Session
   # Allocate a new channel for exchanging data with the server.
   def open_channel(channel_type, window_size, packet_size, message)
     handle = LibSSH2.channel_open(self, channel_type, channel_type.bytesize.to_u32,
-                                  window_size.to_u32, packet_size.to_u32,
-                                  message, message ? message.bytesize.to_u32 : 0_u32)
+      window_size.to_u32, packet_size.to_u32,
+      message, message ? message.bytesize.to_u32 : 0_u32)
     Channel.new self, handle
   end
 
@@ -280,16 +280,16 @@ class SSH2::Session
   end
 
   # Send a file to the remote host via SCP.
+  # LibC::TimeT.new(mtime), LibC::TimeT.new(atime))
   def scp_send(path, mode, size, mtime, atime)
-    handle = LibSSH2.scp_send(self, path, mode.to_i32, size.to_u64,
-mtime,atime)  #LibC::TimeT.new(mtime), LibC::TimeT.new(atime))
+    handle = LibSSH2.scp_send(self, path, mode.to_i32, size.to_u64, mtime, atime)
     check_error(LibSSH2.session_last_errno(self))
     Channel.new self, handle
   end
 
   # Send a file to the remote host via SCP.
   # A new channel is passed to the block and closed afterwards.
-  def scp_send(path, mode, size, mtime = Time.now.to_unix, atime = Time.now.to_unix)
+  def scp_send(path, mode, size, mtime = Time.utc.to_unix, atime = Time.utc.to_unix)
     channel = scp_send(path, mode, size, mtime, atime)
     begin
       yield channel
@@ -304,14 +304,15 @@ mtime,atime)  #LibC::TimeT.new(mtime), LibC::TimeT.new(atime))
       raise Errno.new("Unable to get stat for '#{path}'")
     end
     scp_send(path, (stat.st_mode & 0x3ff).to_i32, stat.st_size.to_u64,
-             stat.st_mtimespec.tv_sec, stat.st_atimespec.tv_sec) do |ch|
+      stat.st_mtimespec.tv_sec, stat.st_atimespec.tv_sec) do |ch|
       File.open(path, "r") do |f|
         IO.copy(f, ch)
       end
     end
   end
+
   # Send a file from a local filesystem to the remote host via SCP.
-  def scp_send_file(path,localpath)
+  def scp_send_file(path, localpath)
     if LibC.stat(localpath, out stat) != 0
       raise Errno.new("Unable to get stat for '#{path}'")
     end
@@ -342,7 +343,7 @@ mtime,atime)  #LibC::TimeT.new(mtime), LibC::TimeT.new(atime))
 
   # Download a file from the remote host via SCP to the local filesystem.
   def scp_recv_file(path, local_path = path)
-    min = -> (x : Int64|Int32, y : Int64|Int32) { x < y ? x : y}
+    min = ->(x : Int64 | Int32, y : Int64 | Int32) { x < y ? x : y }
 
     # libssh2 scp_recv method has a bug where its channel's read method doesn't
     # return 0 value to indicate the end of file(EOF). The only way to find EOF
@@ -352,16 +353,17 @@ mtime,atime)  #LibC::TimeT.new(mtime), LibC::TimeT.new(atime))
       file_size = stat.st_size
       read_bytes = 0
       File.open(local_path, "w") do |f|
-      buf = StaticArray(UInt8, 1024).new(0) # => 42#uninitialized UInt8[1024]
+        buf = StaticArray(UInt8, 1024).new(0) # => 42#uninitialized UInt8[1024]
         while read_bytes < file_size
-bytes_to_read = min.call(buf.size, file_size - read_bytes).to_i32
-buf2 = Slice(UInt8).new( bytes_to_read) 
-          len = ch.read(buf2).to_i32 
+          bytes_to_read = min.call(buf.size, file_size - read_bytes).to_i32
+          buf2 = Slice(UInt8).new(bytes_to_read)
+          len = ch.read(buf2).to_i32
           break if len <= 0
-          f.write buf2.to_slice 
+          f.write buf2.to_slice
           read_bytes += len
         end
       end
+
       if file_size != read_bytes
         File.delete(local_path)
         raise SSH2Error.new "Premature end of file"
