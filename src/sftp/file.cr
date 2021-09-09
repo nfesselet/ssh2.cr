@@ -30,7 +30,7 @@ module SSH2::SFTP
       ret
     end
 
-    def write(slice : Slice(UInt8))
+    def write(slice : Slice(UInt8)) : Nil
       ret = LibSSH2.sftp_write(self, slice, LibC::SizeT.new(slice.bytesize))
       check_error(ret)
       ret

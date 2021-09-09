@@ -106,7 +106,7 @@ module SSH2::SFTP
     end
 
     # Rename a filesystem object on the remote filesystem.
-    def rename(src, dst, flags : LibSSH2::RenameFlags = RenameFlags::OVERWRITE)
+    def rename(src, dst, flags : LibSSH2::RenameFlags = LibSSH2::RenameFlags::OVERWRITE)
       ret = LibSSH2.sftp_rename(self, src, src.bytesize.to_u32, dst, dst.bytesize.to_u32, flags)
       check_error(ret)
     end

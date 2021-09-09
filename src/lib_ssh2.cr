@@ -367,6 +367,7 @@ lib LibSSH2
   end
 
   enum RenameFlags
+    NONE      = 0x00000000
     OVERWRITE = 0x00000001
     ATOMIC    = 0x00000002
     NATIVE    = 0x00000004

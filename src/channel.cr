@@ -119,7 +119,7 @@ class SSH2::Channel < IO
     read(0, slice)
   end
 
-  def write(slice : Slice(UInt8))
+  def write(slice : Slice(UInt8)) : Nil
     write(0, slice)
   end
 
@@ -238,7 +238,7 @@ class SSH2::Channel < IO
       @channel.read(@stream_id, slice)
     end
 
-    def write(slice : Slice(UInt8))
+    def write(slice : Slice(UInt8)) : Nil
       @channel.write(@stream_id, slice)
     end
 
