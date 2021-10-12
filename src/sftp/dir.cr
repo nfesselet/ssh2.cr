@@ -22,6 +22,17 @@ module SSH2::SFTP
       ret
     end
 
+    def ls_with_stats
+      loop do
+        buf_space = uninitialized UInt8[512]
+        buf = buf_space.to_slice
+        ret = LibSSH2.sftp_readdir(self, buf, LibC::SizeT.new(buf.size), nil, LibC::SizeT.new(0), out attrs)
+        break if ret == 0
+        check_error(ret) if ret < 0
+        yield ({String.new(buf[0, ret]), SSH2::SFTP::Attributes.new(attrs)})
+      end
+    end
+
     def ll
       loop do
         buf_space = uninitialized UInt8[512]

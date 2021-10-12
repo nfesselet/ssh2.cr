@@ -109,4 +109,16 @@ describe SSH2::SFTP do
       end
     end
   end
+
+  it "should be able to list modification and access times" do
+    connect_ssh do |ssh|
+      ssh.sftp_session do |sftp|
+        dir = sftp.open_dir(".")
+        dir.ls_with_stats do |fn, stats|
+          stats.mtime.should be_a(Time)
+          stats.atime.should be_a(Time)
+        end
+      end
+    end
+  end
 end
